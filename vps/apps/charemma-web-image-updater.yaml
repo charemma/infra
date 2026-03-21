@@ -10,8 +10,8 @@ spec:
         - alias: web
           imageName: ghcr.io/charemma/charemma-web:latest
           commonUpdateSettings:
-            updateStrategy: latest
-            allowTags: "^sha-"
+            updateStrategy: newest-build
+            allowTags: "sha-.*"
           manifestTargets:
             kustomize:
               name: ghcr.io/charemma/charemma-web
