@@ -7,17 +7,19 @@
 
   outputs = { self, nixpkgs }:
     let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
+      forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in {
-      devShells.${system}.default = pkgs.mkShell {
-        packages = with pkgs; [
-          pulumi
-          pulumiPackages.pulumi-nodejs
-          nodejs
-          jq
-          just
-        ];
-      };
+      devShells = forEachSystem (pkgs: {
+        default = pkgs.mkShell {
+          packages = with pkgs; [
+            pulumi
+            pulumiPackages.pulumi-nodejs
+            nodejs
+            jq
+            just
+          ];
+        };
+      });
     };
 }
