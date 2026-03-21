@@ -1,0 +1,22 @@
+set fallback := true
+
+# Spin up all configured builders
+up:
+    pulumi up --yes
+
+# Tear down all builders
+down:
+    pulumi destroy --yes
+
+# Preview changes without applying
+preview:
+    pulumi preview
+
+# Show running builders as JSON
+status:
+    @pulumi stack output output 2>/dev/null | jq . || echo "[]"
+
+# Install deps and init stack
+init:
+    npm install
+    @echo "Run: pulumi stack init dev && pulumi config set hcloud:token --secret"
