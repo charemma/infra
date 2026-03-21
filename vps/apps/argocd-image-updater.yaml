@@ -9,14 +9,6 @@ spec:
     chart: argocd-image-updater
     repoURL: https://argoproj.github.io/argo-helm
     targetRevision: "*"
-    helm:
-      values: |
-        config:
-          registries:
-            - name: GitHub Container Registry
-              api_url: https://ghcr.io
-              prefix: ghcr.io
-              credentials: secret:argocd/charemma-github#token
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
