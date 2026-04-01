@@ -23,19 +23,12 @@ jobs:
   deploy:
     name: Pulumi ${{ github.event_name == 'pull_request' && 'Preview' || 'Up' }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: vps
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: vps/package-lock.json
+      - uses: DeterminateSystems/nix-installer-action@main
 
-      - run: npm ci
+      - uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Configure kubeconfig
         run: |
@@ -43,19 +36,13 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
           chmod 600 ~/.kube/config
 
+      - name: Install dependencies
+        run: nix develop --command bash -c "cd vps && npm ci"
+
       - name: Pulumi preview
         if: github.event_name == 'pull_request'
-        uses: pulumi/actions@v6
-        with:
-          command: preview
-          stack-name: prod
-          work-dir: vps
-          comment-on-pr: true
+        run: nix develop --command bash -c "cd vps && pulumi preview --stack prod"
 
       - name: Pulumi up
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: pulumi/actions@v6
-        with:
-          command: up
-          stack-name: prod
-          work-dir: vps
+        run: nix develop --command bash -c "cd vps && pulumi up --yes --stack prod"
