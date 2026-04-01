@@ -23,6 +23,9 @@ jobs:
   deploy:
     name: Pulumi ${{ github.event_name == 'pull_request' && 'Preview' || 'Up' }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: nix develop --command bash -e {0}
     steps:
       - uses: actions/checkout@v4
 
@@ -39,12 +42,12 @@ jobs:
           chmod 600 ~/.kube/config
 
       - name: Install dependencies
-        run: nix develop --command bash -c "cd vps && npm ci"
+        run: cd vps && npm ci
 
       - name: Pulumi preview
         if: github.event_name == 'pull_request'
-        run: nix develop --command bash -c "cd vps && pulumi preview --stack prod"
+        run: cd vps && pulumi preview --stack prod
 
       - name: Pulumi up
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: nix develop --command bash -c "cd vps && pulumi up --yes --stack prod"
+        run: cd vps && pulumi up --yes --stack prod
